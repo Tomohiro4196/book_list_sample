@@ -32,6 +32,7 @@ class BookListModel extends ChangeNotifier{
       //this.books = 現在のインスタンスのbookデータを参照する
       notifyListeners();
       //通知を送るメソッド
+      //book_list_pageで発火
     });
 
 

@@ -1,6 +1,6 @@
+import 'package:book_list_sample/add_book/add_book_page.dart';
 import 'package:book_list_sample/book_list/book_list_model.dart';
 import 'package:book_list_sample/domain/book.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,15 +40,39 @@ class BookListPage extends StatelessWidget {
                   )
               .toList();
             return ListView(children: widgets,
+              // widgetに変換したbooksリストを参照してListViewを構築する
             );
           })
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: null,
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
+        floatingActionButton:
+          Consumer<BookListModel>(builder: (context,model,child) {
+            return FloatingActionButton(
+              onPressed: () async {
+                final bool? added = await Navigator.push(
+                  //画面遷移させる
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddBookPage(),
+                    //遷移先を指定
+                  ),
+                );
+                //▲ここで一旦処理が止まる
+
+                //▼Navigator.popで帰ってきた時に残りのコードが呼び出される
+                if(added != null && added){
+                  final snackBar = SnackBar(
+                    content: Text('本の入力を完了しました'),
+                    backgroundColor: Colors.green,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
+                model.fetchBookList();
+              },
+              tooltip: 'Increment',
+              child: Icon(Icons.add),
+              );
+            }),
         ), // This trailing comma makes auto-formatting nicer for build methods.
-      ),
-    );
+      );
   }
 }

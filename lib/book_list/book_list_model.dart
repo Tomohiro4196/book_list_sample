@@ -22,6 +22,7 @@ class BookListModel extends ChangeNotifier{
     // getでデータを取得 = getなので、リアルタイムで反映されない
     final List<Book> books = snapshot.docs.map((DocumentSnapshot document) {
       //List<Book> books = 「Book」型のレコードから成る「books」というリスト
+      // TODO: Book型はbook.dartで作成している
       //mapでDocumentSnapshotをBookに変換する
 
       //Booksのリストを作成
@@ -30,7 +31,8 @@ class BookListModel extends ChangeNotifier{
       final String title = data['title'];
       final String author = data['author'];
       return Book(title, author);
-      //Bookという型にしてMapの中で変換する -> Bookから成るbooksというリストになる
+      //Bookという型に変換する -> Bookから成るbooksというリストになる
+      // TODO: Book型はbook.dartで作成している
     }).toList();
 
     //toList -> リストに追加する

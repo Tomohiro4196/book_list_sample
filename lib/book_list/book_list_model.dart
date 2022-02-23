@@ -28,9 +28,11 @@ class BookListModel extends ChangeNotifier{
       //Booksのリストを作成
       Map<String, dynamic>
       data = document.data()! as Map<String, dynamic>;
+      final String id = document.id;
+      //ユニークIDを指定 注意:ここだけdocument.になっている
       final String title = data['title'];
       final String author = data['author'];
-      return Book(title, author);
+      return Book(id, title, author);
       //Bookという型に変換する -> Bookから成るbooksというリストになる
       // TODO: Book型はbook.dartで作成している
     }).toList();

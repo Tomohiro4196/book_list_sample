@@ -1,7 +1,9 @@
 import 'package:book_list_sample/add_book/add_book_page.dart';
 import 'package:book_list_sample/book_list/book_list_model.dart';
 import 'package:book_list_sample/domain/book.dart';
+import 'package:book_list_sample/edit_book/edit_book_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class BookListPage extends StatelessWidget {
@@ -15,7 +17,7 @@ class BookListPage extends StatelessWidget {
       //モデルから関数を引っ張ってくる場合は「.」（ピリオドが2つ必要）
       child: Scaffold(
         appBar: AppBar(
-          title: Text('本一覧'),
+          title: Text('本を追加する'),
         ),
         body: Center(
           child: Consumer<BookListModel>(builder: (context,model,child){
@@ -33,12 +35,49 @@ class BookListPage extends StatelessWidget {
               // 2回目以降はレコードが入っているので、if文ではなくこちらが発火する
               // booksからWidget型に修正する
               //「!」でnullではないことを明らかにする
-                    (book) => ListTile(
-                      title: Text(book.title),
-                      subtitle: Text(book.author),
+                    (book) => Slidable(
+                      actionPane: SlidableDrawerActionPane(),
+                      child: ListTile(
+                          title: Text(book.title),
+                          subtitle: Text(book.author),
+                        ),
+                      secondaryActions: <Widget>[
+                        IconSlideAction(
+                          caption: 'edit',
+                          color: Colors.black45,
+                          icon: Icons.edit,
+                          onTap: () async {
+                            final String? title = await Navigator.push(
+                              //画面遷移させる
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditBookPage(book),
+                                //遷移先を指定
+                                //()内の"book"はリスト何のレコード1つ1つを参照している
+                              ),
+                            );
+                            //▲ここで一旦処理が止まる
+
+                            //▼Navigator.popで帰ってきた時に残りのコードが呼び出される
+                            if(title != null){
+                              final snackBar = SnackBar(
+                                content: Text('$titleの編集を完了しました'),
+                                backgroundColor: Colors.blue,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            }
+                            model.fetchBookList();
+                          },
+                        ),
+                        IconSlideAction(
+                          caption: 'Delete',
+                          color: Colors.red,
+                          icon: Icons.delete,
+                          onTap: null,
+                        ),
+                      ],
                     ),
-                  )
-              .toList();
+                  ).toList();
             return ListView(children: widgets,
               // widgetに変換したbooksリストを参照してListViewを構築する
             );

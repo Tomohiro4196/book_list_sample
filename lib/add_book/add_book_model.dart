@@ -13,8 +13,6 @@ class AddBookModel extends ChangeNotifier {
 
   final picker = ImagePicker();
 
-  String? imgURL;
-
   void startLoading() {
     isLoading = true;
     notifyListeners();
@@ -24,6 +22,8 @@ class AddBookModel extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+
+  String? imgURL;
 
   Future addBook() async {
     if (title == null || title == "") {

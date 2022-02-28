@@ -63,7 +63,7 @@ class AddBookPage extends StatelessWidget {
                             onPressed: () async {
                               // ▼レコードを追加する処理
                               try {
-                                model.startLoading();
+                              model.startLoading();
                               await model.addBook();
                               //add_book_model内のAddBookを発火させる
                               Navigator.of(context).pop(true);
@@ -73,7 +73,8 @@ class AddBookPage extends StatelessWidget {
                                 content: Text(e.toString()
                               )
                               );
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                               } finally {
                                 //catchしてもしなくても発生する処理
                                 model.endLoading();
@@ -84,13 +85,12 @@ class AddBookPage extends StatelessWidget {
                                   ]
                                 )
                                ),
-                            if(model.isLoading)
-                              //ロード中のみ回ってる感じのやつをだす
-                                Container(
+                                if(model.isLoading)
+                                  Container(
                                     color: Colors.white54,
                                     child: Center(
-                                    child: CircularProgressIndicator(),
-                                    ),
+                                      child: CircularProgressIndicator(),
+                                      ),
                                     ),
                               ],
                             );
@@ -101,4 +101,5 @@ class AddBookPage extends StatelessWidget {
                   );
 
                 }
+
               }

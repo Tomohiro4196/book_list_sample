@@ -32,7 +32,8 @@ class BookListModel extends ChangeNotifier{
       //ユニークIDを指定 注意:ここだけdocument.になっている
       final String title = data['title'];
       final String author = data['author'];
-      return Book(id, title, author);
+      final String? imageURL = data['imageURL'];
+      return Book(id, title, author, imageURL);
       //Bookという型に変換する -> Bookから成るbooksというリストになる
       // TODO: Book型はbook.dartで作成している
     }).toList();
@@ -44,5 +45,9 @@ class BookListModel extends ChangeNotifier{
     notifyListeners();
     //通知を送るメソッド
     //book_list_pageで発火
+    }
+
+    Future delete(Book book){
+      return FirebaseFirestore.instance.collection('books').doc(book.id).delete();
     }
   }

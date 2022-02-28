@@ -1,3 +1,4 @@
+import 'package:book_list_sample/Login/login_page.dart';
 import 'package:book_list_sample/add_book/add_book_page.dart';
 import 'package:book_list_sample/book_list/book_list_model.dart';
 import 'package:book_list_sample/domain/book.dart';
@@ -9,6 +10,7 @@ import 'package:provider/provider.dart';
 class BookListPage extends StatelessWidget {
 
 
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<BookListModel>(
@@ -17,7 +19,20 @@ class BookListPage extends StatelessWidget {
       //モデルから関数を引っ張ってくる場合は「.」（ピリオドが2つ必要）
       child: Scaffold(
         appBar: AppBar(
-          title: Text('本を追加する'),
+          title: Text('本一覧'),
+            actions: [
+              IconButton(
+                  onPressed: (){
+                    Navigator.push(
+                        context,
+                      MaterialPageRoute(
+                          builder: (context) => LoginPage(),
+                        )
+                    );
+                    //
+                  },
+                  icon: Icon(Icons.person))
+            ],
         ),
         body: Center(
           child: Consumer<BookListModel>(builder: (context,model,child){
@@ -38,6 +53,16 @@ class BookListPage extends StatelessWidget {
                     (book) => Slidable(
                       actionPane: SlidableDrawerActionPane(),
                       child: ListTile(
+                          leading: book.imageURL != null
+                              ? SizedBox(
+                              width: 45,
+                              child: Image.network(book.imageURL!)
+                          )
+                            : SizedBox(
+                            height: 70,
+                            width:  45,
+                            child: Container(color: Colors.grey,)
+                          ),
                           title: Text(book.title),
                           subtitle: Text(book.author),
                         ),
@@ -61,7 +86,7 @@ class BookListPage extends StatelessWidget {
                             //▼Navigator.popで帰ってきた時に残りのコードが呼び出される
                             if(title != null){
                               final snackBar = SnackBar(
-                                content: Text('$titleの編集を完了しました'),
+                                content: Text('『${title}』の編集を完了しました'),
                                 backgroundColor: Colors.blue,
                               );
                               ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -73,7 +98,9 @@ class BookListPage extends StatelessWidget {
                           caption: 'Delete',
                           color: Colors.red,
                           icon: Icons.delete,
-                          onTap: null,
+                          onTap: () async {
+                            await showConfirmDialog(context, book, model);
+                          },
                         ),
                       ],
                     ),
@@ -113,5 +140,42 @@ class BookListPage extends StatelessWidget {
             }),
         ), // This trailing comma makes auto-formatting nicer for build methods.
       );
+  }
+
+  //確認のダイアログを表示するメソッド
+  Future showConfirmDialog(BuildContext context, Book book, BookListModel model) {
+    //上記の引数 => BuildContext型のcontext / Book型のbook / BookListModel型のmodel
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) {
+          return AlertDialog(
+            title: Text("削除の確認"),
+            content: Text("『${book.title}』を削除しますか？"),
+            actions: [
+              FlatButton(
+                child: Text("キャンセル"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              FlatButton(
+                child: Text("はい"),
+                onPressed: () async {
+                  await model.delete(book);
+                  //model内のdeleteをbookを引数に実行 => 削除
+                  Navigator.pop(context);
+
+                  final snackBar = SnackBar(
+                    backgroundColor: Colors.redAccent,
+                      content: Text('${book.title}を削除しました'),
+                  );
+                  model.fetchBookList();
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+              ),
+            ],
+          );
+        },
+    );
+
   }
 }

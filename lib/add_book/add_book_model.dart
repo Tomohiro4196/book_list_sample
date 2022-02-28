@@ -1,31 +1,64 @@
-import 'package:book_list_sample/domain/book.dart';
-// domainディレクトリから、Bookクラスをインポートする
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
 
-class AddBookModel extends ChangeNotifier{
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+class AddBookModel extends ChangeNotifier {
   String? title;
   String? author;
+  File? imageFile;
+  bool isLoading = false;
+
+  final picker = ImagePicker();
+
+  String? imgURL;
+
+  void startLoading() {
+    isLoading = true;
+    notifyListeners();
+  }
+
+  void endLoading() {
+    isLoading = false;
+    notifyListeners();
+  }
 
   Future addBook() async {
-    // Futureクラス = 時間のかかる非同期通信を行う際に利用する
-    // Futureを使う際は'async' 'await' を使うことが推奨されている
-    if (title == null || title!.isEmpty){
-      //タイトルに入力がない もしくは空白だけで入力された場合
-      throw '本のタイトルが空欄です';
+    if (title == null || title == "") {
+      throw 'タイトルが入力されていません';
     }
 
-    if(author == null || author!.isEmpty){
-      //著者に入力がない もしくは空白だけで入力された場合
-      throw '本の作者が空欄です';
+    if (author == null || author!.isEmpty) {
+      throw '著者が入力されていません';
     }
-    //上記二つのif文を突破したら下の.addメソッドが発火
-    //Firestoreに追加するメソッド
-    await FirebaseFirestore.instance.collection('books').add(
-      {
-        'title': title,
-        'author': author,
-      }
+
+    final doc = FirebaseFirestore.instance.collection('books').doc();
+
+    if (imageFile != null) {
+      // storageにアップロード
+      final TaskSnapshot task = await FirebaseStorage.instance
+        .ref('books/${doc.id}').putFile(imageFile!);
+      imgURL = await task.ref.getDownloadURL();
+    }
+
+    // firestoreに追加
+    await doc.set({
+      'title': title,
+      'author': author,
+      'imageURL': imgURL
+    },
+      SetOptions(merge: true)
     );
+  }
+
+  Future pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      imageFile = File(pickedFile.path);
+      notifyListeners();
+    }
   }
 }

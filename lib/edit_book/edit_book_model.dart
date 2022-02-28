@@ -4,21 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
 class EditBookModel extends ChangeNotifier{
-  final Book book;
   EditBookModel(this.book) {
     //イニシャライズする時に、初期値としてタイトルと著者を設定する
     titleController.text = book.title;
     authorController.text = book.author;
   }
+  final Book book;
 
   final titleController = TextEditingController();
   final authorController = TextEditingController();
 
-
-
   String? title;
   String? author;
-
 
   //▼notifyListenersをモデルで試行する
   void setTitle(String title){
